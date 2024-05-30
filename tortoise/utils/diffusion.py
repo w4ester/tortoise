@@ -683,7 +683,7 @@ class GaussianDiffusion:
         """
         Sample x_{t+1} from the model using DDIM reverse ODE.
         """
-        assert eta == 0.0, "Reverse ODE only for deterministic path"
+        assert math.isclose(eta, 0.0, rel_tol=1e-09, abs_tol=0.0), "Reverse ODE only for deterministic path"
         out = self.p_mean_variance(
             model,
             x,

@@ -21,6 +21,7 @@ from typing import Callable, List, Optional, Union
 from torch import nn
 import torch.distributed as dist
 import copy
+import math
 
 
 def setup_seed(seed):
@@ -571,7 +572,7 @@ class NewGenerationMixin(GenerationMixin):
                 )
 
             has_default_typical_p = (
-                kwargs.get("typical_p") is None and generation_config.typical_p == 1.0
+                kwargs.get("typical_p") is None and math.isclose(generation_config.typical_p, 1.0, rel_tol=1e-09, abs_tol=0.0)
             )
             if not has_default_typical_p:
                 raise ValueError(
@@ -923,7 +924,7 @@ class NewGenerationMixin(GenerationMixin):
                 # send 0.0 if we finished, 1.0 otherwise
                 dist.all_reduce(this_peer_finished_flag, op=dist.ReduceOp.SUM)
                 # did all peers finish? the reduced sum will be 0.0 then
-                if this_peer_finished_flag.item() == 0.0:
+                if math.isclose(this_peer_finished_flag.item(), 0.0, rel_tol=1e-09, abs_tol=0.0):
                     break
 
             # prepare model inputs
