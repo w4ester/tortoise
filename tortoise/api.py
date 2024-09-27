@@ -1,5 +1,4 @@
 import os
-import random
 import uuid
 from time import time
 from urllib import request
@@ -24,6 +23,8 @@ from tortoise.utils.tokenizer import VoiceBpeTokenizer
 from tortoise.utils.wav2vec_alignment import Wav2VecAlignment
 from contextlib import contextmanager
 from huggingface_hub import hf_hub_download
+import secrets
+
 pbar = None
 
 DEFAULT_MODELS_DIR = os.path.join(os.path.expanduser('~'), '.cache', 'tortoise', 'models')
@@ -78,7 +79,7 @@ def format_conditioning(clip, cond_length=132300, device="cuda" if not torch.bac
     if gap < 0:
         clip = F.pad(clip, pad=(0, abs(gap)))
     elif gap > 0:
-        rand_start = random.randint(0, gap)
+        rand_start = secrets.SystemRandom().randint(0, gap)
         clip = clip[:, rand_start:rand_start + cond_length]
     mel_clip = TorchMelSpectrogram()(clip.unsqueeze(0)).squeeze(0)
     return mel_clip.unsqueeze(0).to(device)
@@ -598,7 +599,7 @@ class TextToSpeech:
         """
         seed = int(time()) if seed is None else seed
         torch.manual_seed(seed)
-        random.seed(seed)
+        secrets.SystemRandom().seed(seed)
         # Can't currently set this because of CUBLAS. TODO: potentially enable it if necessary.
         # torch.use_deterministic_algorithms(True)
 
