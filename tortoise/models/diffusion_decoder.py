@@ -1,5 +1,4 @@
 import math
-import random
 from abc import abstractmethod
 
 import torch
@@ -8,6 +7,7 @@ import torch.nn.functional as F
 from torch import autocast
 
 from tortoise.models.arch_util import normalization, AttentionBlock
+import secrets
 
 
 def is_latent(t):
@@ -298,7 +298,7 @@ class DiffusionTts(nn.Module):
         x = self.integrating_conv(x)
         for i, lyr in enumerate(self.layers):
             # Do layer drop where applicable. Do not drop first and last layers.
-            if self.training and self.layer_drop > 0 and i != 0 and i != (len(self.layers)-1) and random.random() < self.layer_drop:
+            if self.training and self.layer_drop > 0 and i != 0 and i != (len(self.layers)-1) and secrets.SystemRandom().random() < self.layer_drop:
                 unused_params.extend(list(lyr.parameters()))
             else:
                 # First and last blocks will have autocast disabled for improved precision.

@@ -12,7 +12,6 @@ from transformers import (
     PreTrainedModel,
 )
 import numpy as np
-import random
 import warnings
 import inspect
 from transformers.generation.utils import GenerateOutput, SampleOutput, logger
@@ -21,6 +20,7 @@ from typing import Callable, List, Optional, Union
 from torch import nn
 import torch.distributed as dist
 import copy
+import secrets
 
 
 def setup_seed(seed):
@@ -30,7 +30,7 @@ def setup_seed(seed):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
-    random.seed(seed)
+    secrets.SystemRandom().seed(seed)
     torch.backends.cudnn.deterministic = True
 
 
